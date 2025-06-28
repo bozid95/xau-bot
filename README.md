@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🥇 XAUUSD Telegram Trading Bot
 
-## Getting Started
+Bot Telegram untuk sinyal trading XAUUSD (Gold) dengan integrasi TradingView dan dashboard web menggunakan Next.js. Bot ini dapat menerima sinyal dari TradingView webhooks dan mengirimkan notifikasi real-time ke Telegram.
 
-First, run the development server:
+## ✨ Fitur Utama
+
+- 📱 **Notifikasi Telegram Real-time** - Sinyal trading langsung ke chat Telegram Anda
+- 📊 **Dashboard Web Monitoring** - Interface modern untuk monitoring dan konfigurasi
+- 🔗 **TradingView Integration** - Terima sinyal langsung dari TradingView alerts
+- 🚀 **Deploy Gratis di Vercel** - Optimized untuk serverless deployment
+- 🛡️ **Validasi Sinyal** - Built-in validation untuk memastikan kualitas sinyal
+- 📈 **Riwayat Sinyal** - Tracking dan monitoring semua sinyal yang diterima
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 15 dengan App Router
+- **Styling**: Tailwind CSS
+- **Bot**: Telegram Bot API
+- **Webhook**: TradingView Alerts
+- **Deployment**: Vercel (gratis)
+
+## 🚀 Quick Start
+
+### 1. Setup Bot Telegram
+
+1. Buat bot baru dengan [@BotFather](https://t.me/botfather)
+2. Copy token bot yang diberikan
+3. Mulai chat dengan bot Anda
+4. Dapatkan Chat ID dari [@userinfobot](https://t.me/userinfobot)
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Konfigurasi Environment
+
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local` dan isi:
+
+```
+TELEGRAM_BOT_TOKEN=your_bot_token_here
+TELEGRAM_CHAT_ID=your_chat_id_here
+```
+
+### 4. Jalankan Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000) untuk mengakses dashboard.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### 5. Setup TradingView Alerts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Buka TradingView dan buat alert baru
+2. Di bagian "Notifications", pilih "Webhook URL"
+3. Masukkan URL: `https://your-domain.vercel.app/api/webhook`
+4. Di "Message", gunakan format JSON:
 
-## Learn More
+```json
+{
+  "symbol": "XAUUSD",
+  "action": "BUY",
+  "price": {{close}},
+  "stop_loss": {{close}} - 20,
+  "take_profit": {{close}} + 40,
+  "timeframe": "{{interval}}",
+  "reason": "Your trading reason here",
+  "strategy": "Your strategy name"
+}
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 🌐 Deploy ke Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push ke GitHub repository
+2. Import project di [vercel.com](https://vercel.com)
+3. Tambahkan Environment Variables di Vercel dashboard
+4. Deploy!
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📊 Dashboard Features
 
-## Deploy on Vercel
+- **Real-time Stats**: Monitor total sinyal dan aktivitas hari ini
+- **Telegram Config**: Setup dan test koneksi bot
+- **Signal History**: Riwayat sinyal dengan detail lengkap
+- **Webhook Setup**: Panduan konfigurasi TradingView
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🔧 API Endpoints
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `POST /api/webhook` - Menerima sinyal dari TradingView
+- `POST /api/test-telegram` - Test koneksi Telegram
+- `GET /api/stats` - Statistik bot
+- `GET /api/signals` - Riwayat sinyal
+
+**Disclaimer**: Bot ini hanya untuk tujuan edukasi. Selalu lakukan riset sendiri sebelum melakukan trading.
