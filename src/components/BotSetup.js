@@ -472,20 +472,211 @@ export default function BotSetup() {
                     </select>
                   </div>
 
-                  {config.email.platform && (
-                    <div className="bg-yellow-50 p-3 rounded">
-                      <p className="text-sm font-medium text-yellow-800 mb-2">
-                        {config.email.platform.charAt(0).toUpperCase() +
-                          config.email.platform.slice(1)}{" "}
-                        Setup:
+                  {config.email.platform === "zapier" && (
+                    <div className="bg-blue-50 p-3 rounded">
+                      <p className="text-sm font-medium text-blue-800 mb-2">
+                        🔗 Zapier Setup (Detailed):
                       </p>
-                      <ol className="text-xs text-yellow-700 space-y-1 list-decimal list-inside">
-                        <li>Create {config.email.platform} account</li>
-                        <li>Set email trigger from TradingView</li>
+                      <div className="space-y-2 text-xs text-blue-700">
+                        <div className="bg-white p-2 rounded border border-blue-200">
+                          <p className="font-semibold">Step 1: Create Zap</p>
+                          <ol className="list-decimal list-inside ml-2">
+                            <li>
+                              Go to{" "}
+                              <a
+                                href="https://zapier.com"
+                                target="_blank"
+                                className="underline"
+                              >
+                                zapier.com
+                              </a>{" "}
+                              → Create Zap
+                            </li>
+                            <li>
+                              Trigger: &quot;Email by Zapier&quot; → &quot;New
+                              Inbound Email&quot;
+                            </li>
+                            <li>
+                              Copy the robot email (like: abc@robot.zapier.com)
+                            </li>
+                          </ol>
+                        </div>
+                        <div className="bg-white p-2 rounded border border-blue-200">
+                          <p className="font-semibold">Step 2: Setup Action</p>
+                          <ol className="list-decimal list-inside ml-2">
+                            <li>
+                              Action: &quot;Webhooks by Zapier&quot; →
+                              &quot;POST&quot;
+                            </li>
+                            <li>
+                              URL:{" "}
+                              <code className="bg-gray-100 px-1">
+                                {config.tradingView.webhookUrl}
+                              </code>
+                            </li>
+                            <li>Payload Type: JSON</li>
+                            <li>Data: Copy exact JSON format below</li>
+                          </ol>
+                        </div>
+                        <div className="bg-white p-2 rounded border border-blue-200">
+                          <p className="font-semibold">
+                            JSON Data Format (Copy This):
+                          </p>
+                          <div className="relative">
+                            <pre className="bg-gray-800 text-green-400 p-2 rounded text-xs overflow-x-auto mt-1">{`{
+  "symbol": "XAUUSD",
+  "action": "BUY",
+  "price": "2650.50",
+  "stop_loss": "2630.50",
+  "take_profit": "2680.50",
+  "timeframe": "1H",
+  "reason": "Email alert",
+  "strategy": "Email Bridge"
+}`}</pre>
+                            <button
+                              onClick={() =>
+                                copyToClipboard(`{
+  "symbol": "XAUUSD",
+  "action": "BUY",
+  "price": "2650.50",
+  "stop_loss": "2630.50",
+  "take_profit": "2680.50",
+  "timeframe": "1H",
+  "reason": "Email alert",
+  "strategy": "Email Bridge"
+}`)
+                              }
+                              className="absolute top-1 right-1 px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                            >
+                              📋
+                            </button>
+                          </div>
+                        </div>
+                        <div className="bg-white p-2 rounded border border-blue-200">
+                          <p className="font-semibold">
+                            Step 3: TradingView Setup
+                          </p>
+                          <ol className="list-decimal list-inside ml-2">
+                            <li>Create TradingView alert</li>
+                            <li>Enable &quot;Send email&quot;</li>
+                            <li>Use Zapier robot email as recipient</li>
+                            <li>Format email with signal data</li>
+                          </ol>
+                        </div>
+                        <div className="bg-white p-2 rounded border border-blue-200">
+                          <p className="font-semibold">JSON Payload Example:</p>
+                          <pre className="bg-gray-800 text-green-400 p-2 rounded text-xs overflow-x-auto mt-1">{`{
+  "symbol": "XAUUSD",
+  "action": "BUY",
+  "price": "{{email.subject}}",
+  "source": "zapier",
+  "email_body": "{{email.body}}"
+}`}</pre>
+                        </div>
+                        <div className="bg-yellow-100 p-2 rounded border border-yellow-300">
+                          <p className="font-semibold text-yellow-800">
+                            💡 Pro Tips:
+                          </p>
+                          <ul className="text-yellow-700 ml-2">
+                            <li>• Use specific email subjects for parsing</li>
+                            <li>• Add Formatter step for advanced parsing</li>
+                            <li>• Test with simple alerts first</li>
+                            <li>• Monitor Zap history for troubleshooting</li>
+                          </ul>
+                        </div>
+                        <div className="bg-red-50 p-2 rounded border border-red-200">
+                          <p className="font-semibold text-red-800">
+                            🚨 Common Error: &quot;Missing required field:
+                            symbol&quot;
+                          </p>
+                          <div className="text-red-700 text-xs mt-1">
+                            <p className="font-medium">Quick Fix:</p>
+                            <ol className="list-decimal list-inside ml-2">
+                              <li>
+                                Use test URL first:{" "}
+                                <code className="bg-white px-1">
+                                  {config.tradingView.webhookUrl.replace(
+                                    "/api/webhook",
+                                    "/api/test-zapier"
+                                  )}
+                                </code>
+                              </li>
+                              <li>Copy exact JSON format above</li>
+                              <li>Test action in Zapier</li>
+                              <li>Check response for debugging</li>
+                              <li>Fix issues, then use production URL</li>
+                            </ol>
+                          </div>
+                        </div>
+                        <div className="text-center mt-2 space-y-1">
+                          <a
+                            href="/ZAPIER_ERROR_FIX.md"
+                            target="_blank"
+                            className="block text-blue-600 underline font-semibold text-sm"
+                          >
+                            📖 Complete Zapier Error Fix Guide
+                          </a>
+                          <a
+                            href="/ZAPIER_SETUP_GUIDE.md"
+                            target="_blank"
+                            className="block text-blue-600 underline font-semibold text-sm"
+                          >
+                            📚 Full Zapier Setup Documentation
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {config.email.platform === "ifttt" && (
+                    <div className="bg-green-50 p-3 rounded">
+                      <p className="text-sm font-medium text-green-800 mb-2">
+                        🔗 IFTTT Setup:
+                      </p>
+                      <ol className="text-xs text-green-700 space-y-1 list-decimal list-inside">
                         <li>
-                          Add webhook action to: {config.tradingView.webhookUrl}
+                          Go to{" "}
+                          <a
+                            href="https://ifttt.com"
+                            target="_blank"
+                            className="underline"
+                          >
+                            ifttt.com
+                          </a>
                         </li>
-                        <li>Configure email parsing</li>
+                        <li>
+                          Create &quot;Gmail&quot; → &quot;Webhooks&quot; applet
+                        </li>
+                        <li>Set trigger: &quot;New email in inbox&quot;</li>
+                        <li>Set action: &quot;Make a web request&quot;</li>
+                        <li>Configure webhook with email data</li>
+                      </ol>
+                    </div>
+                  )}
+
+                  {config.email.platform === "powerautomate" && (
+                    <div className="bg-purple-50 p-3 rounded">
+                      <p className="text-sm font-medium text-purple-800 mb-2">
+                        🔗 Power Automate Setup:
+                      </p>
+                      <ol className="text-xs text-purple-700 space-y-1 list-decimal list-inside">
+                        <li>
+                          Go to{" "}
+                          <a
+                            href="https://powerautomate.microsoft.com"
+                            target="_blank"
+                            className="underline"
+                          >
+                            powerautomate.microsoft.com
+                          </a>
+                        </li>
+                        <li>
+                          Create flow: &quot;When new email arrives&quot; →
+                          &quot;HTTP POST&quot;
+                        </li>
+                        <li>Set email filter for TradingView alerts</li>
+                        <li>Configure HTTP action to webhook URL</li>
+                        <li>Map email content to JSON payload</li>
                       </ol>
                     </div>
                   )}

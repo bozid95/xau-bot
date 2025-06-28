@@ -9,14 +9,37 @@ let signals = [];
  */
 export async function POST(request) {
   try {
-    const body = await request.json();
+    // Debug: Log request details
+    console.log("=== WEBHOOK REQUEST DEBUG ===");
+    console.log("Headers:", Object.fromEntries(request.headers.entries()));
+
+    const rawBody = await request.text();
+    console.log("Raw body:", rawBody);
+    console.log("Body length:", rawBody.length);
+
+    let body;
+    try {
+      body = JSON.parse(rawBody);
+      console.log("Parsed JSON:", body);
+    } catch (parseError) {
+      console.error("JSON Parse Error:", parseError);
+      return Response.json(
+        {
+          error: "Invalid JSON format",
+          received: rawBody,
+          details: parseError.message,
+          help: "Check Zapier webhook data format",
+        },
+        { status: 400 }
+      );
+    }
 
     // Validasi webhook signature jika diperlukan
     const signature = request.headers.get("x-tradingview-signature");
     if (process.env.TRADINGVIEW_SECRET && signature) {
       const expectedSignature = crypto
         .createHmac("sha256", process.env.TRADINGVIEW_SECRET)
-        .update(JSON.stringify(body))
+        .update(rawBody)
         .digest("hex");
 
       if (signature !== expectedSignature) {
@@ -27,7 +50,17 @@ export async function POST(request) {
     // Validasi format sinyal trading
     const signal = validateTradingSignal(body);
     if (!signal.isValid) {
-      return Response.json({ error: signal.error }, { status: 400 });
+      console.error("Validation failed:", signal.error, "Data:", body);
+      return Response.json(
+        {
+          error: signal.error,
+          received_data: body,
+          required_fields: ["symbol", "action", "price"],
+          zapier_help:
+            "Ensure your Zapier webhook data includes: symbol, action, price fields",
+        },
+        { status: 400 }
+      );
     }
 
     // Simpan signal ke storage
@@ -176,6 +209,38 @@ function formatTelegramMessage(signal) {
   message += `\n#XAUUSD #TradingSignal #${signal.action}`;
 
   return message;
+}
+
+/**
+ * GET endpoint untuk testing webhook
+ */
+export async function GET() {
+  return Response.json({
+    message: "XAUUSD Trading Bot Webhook Endpoint",
+    status: "Ready",
+    expected_format: {
+      symbol: "XAUUSD",
+      action: "BUY|SELL|CLOSE",
+      price: "number",
+      stop_loss: "number (optional)",
+      take_profit: "number (optional)",
+      timeframe: "string (optional)",
+      reason: "string (optional)",
+      strategy: "string (optional)",
+    },
+    zapier_example: {
+      symbol: "XAUUSD",
+      action: "BUY",
+      price: "2650.50",
+      stop_loss: "2630.50",
+      take_profit: "2680.50",
+      timeframe: "1H",
+      reason: "Zapier email alert",
+      strategy: "Email Bridge",
+    },
+    test_url: "Send POST request to this endpoint with the above format",
+    help: "For Zapier setup, copy the zapier_example JSON to webhook data field",
+  });
 }
 
 // Export signals untuk digunakan oleh endpoint lain
